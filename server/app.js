@@ -26,6 +26,8 @@ app.use('/api/education', require('./routes/education'));
 app.use('/api/skills', require('./routes/skills'));
 app.use('/api/work-experience', require('./routes/workExperience'));
 app.use('/api/links', require('./routes/links'));
+app.use('/api/contact', require('./routes/contact'));
+app.use('/downloads', require('./routes/downloads'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

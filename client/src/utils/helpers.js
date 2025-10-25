@@ -1,3 +1,5 @@
+import { sendMessage } from "../services/api";
+
 const smoothScrollToSection = (e, sectionId) => {
     e.preventDefault();
     const target = document.getElementById(sectionId);
@@ -8,20 +10,6 @@ const smoothScrollToSection = (e, sectionId) => {
         });
     }
 };
-
-const downloadResume = () => {
-    // In a real implementation, you would link to your actual resume file
-    // For now, this shows an alert with instructions
-    alert('Resume download feature ready! Replace this with a link to your actual PDF resume file.');
-
-    // Example of how you would implement this with a real resume file:
-    // const link = document.createElement('a');
-    // link.href = 'path/to/your/resume.pdf';
-    // link.download = 'Alex_Chen_Resume.pdf';
-    // document.body.appendChild(link);
-    // link.click();
-    // document.body.removeChild(link);
-}
 
 const handleSubmit = (e) => {
     e.preventDefault();
@@ -34,9 +22,16 @@ const handleSubmit = (e) => {
         message: formData.get('message')
     };
 
-    alert('Thank you for your message! I\'ll get back to you soon.');
-    e.target.reset();
+    sendMessage({ messageData: data })
+        .then(() => {
+            alert('Thank you for your message! I\'ll get back to you soon.');
+            e.target.reset();
+        })
+        .catch((err) => {
+            console.error('Error sending message:', err);
+            alert('Failed to send message. Please try again later.');
+        });
 };
 
-export { smoothScrollToSection, downloadResume };
+export { smoothScrollToSection };
 export default handleSubmit;

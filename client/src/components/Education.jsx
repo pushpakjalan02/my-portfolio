@@ -1,44 +1,79 @@
 import '../styles/components/education.css';
 import useFadeInOnScroll from '../hooks/useFadeInOnScroll';
+import { useState, useEffect } from 'react';
+import { fetchEducation } from '../services/api';
+
+function EducationCard({ type, education }) {
+    const [educationRef, educationVisible] = useFadeInOnScroll();
+
+    if (type == 'degree') {
+        return (
+            <div ref={educationRef} className={`education-card ${educationVisible ? 'visible' : ''}`}>
+                <h3>{education[0].degree}</h3>
+                <h4>{education[0].college}</h4>
+                <div className="education-date">{education[0].startYear} - {education[0].endYear}</div>
+                <p>{education[0].description}</p>
+                <p><strong>Relevant Coursework:</strong> {education[0].relevantCoursework.join(', ')}</p>
+            </div>
+        );
+    } else {
+        return (
+            <div ref={educationRef} className={`education-card ${educationVisible ? 'visible' : ''}`}>
+                <h3>Professional Certifications</h3>
+                <div className="certifications">
+                    {education.map((cert, index) => (
+                        <div key={index} className="cert-item">
+                            <strong>{cert.certificateName}</strong><br />
+                            <em>{cert.issuingOrganization} • {cert.year}</em>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    }
+}
 
 function Education() {
-    const [educationRef1, educationVisible1] = useFadeInOnScroll();
-    const [educationRef2, educationVisible2] = useFadeInOnScroll();
+    const [education, setEducation] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const loadEducation = async () => {
+            try {
+                const data = await fetchEducation();
+                setEducation(data);
+
+            } catch (err) {
+                setError(err.message);
+
+            } finally {
+                setLoading(false);
+
+            }
+        };
+
+        loadEducation();
+    }, []);
+
+    // Create dictionary
+    const educationMap = {};
+    for (const item of education) {
+        if (!(item["type"] in educationMap)) {
+            educationMap[item["type"]] = [];
+        }
+
+        educationMap[item["type"]].push(item);
+    }
 
     return (
-        <section id="education" class="section">
-            <div class="container">
-                <h2 class="section-title">Education & Certifications</h2>
-                <div class="education-grid">
-                    <div ref={educationRef1} className={`education-card ${educationVisible1 ? 'visible' : ''}`}>
-                        <h3>Bachelor of Science in Computer Science</h3>
-                        <h4>University of Technology</h4>
-                        <div class="education-date">2015 - 2019</div>
-                        <p>Graduated Magna Cum Laude with a GPA of 3.8/4.0. Specialized in software engineering and algorithms. Active member of the Computer Science Society.</p>
-                        <p><strong>Relevant Coursework:</strong> Data Structures & Algorithms, Software Engineering, Database Systems, Computer Networks, Operating Systems, Web Development</p>
-                    </div>
-
-                    <div ref={educationRef2} className={`education-card ${educationVisible2 ? 'visible' : ''}`}>
-                        <h3>Professional Certifications</h3>
-                        <div class="certifications">
-                            <div class="cert-item">
-                                <strong>AWS Certified Solutions Architect</strong><br />
-                                <em>Amazon Web Services • 2023</em>
-                            </div>
-                            <div class="cert-item">
-                                <strong>Google Cloud Professional Developer</strong><br />
-                                <em>Google Cloud • 2022</em>
-                            </div>
-                            <div class="cert-item">
-                                <strong>MongoDB Certified Developer</strong><br />
-                                <em>MongoDB Inc. • 2021</em>
-                            </div>
-                            <div class="cert-item">
-                                <strong>Scrum Master Certified (SMC)</strong><br />
-                                <em>Scrum Alliance • 2020</em>
-                            </div>
-                        </div>
-                    </div>
+        <section id="education" className="section">
+            <div className="container">
+                <h2 className="section-title">Education & Certifications</h2>
+                <div className="education-grid">
+                    {Object.keys(educationMap).map((key, index) => (
+                        <EducationCard key={index} type={key} education={educationMap[key]} />
+                    ))}
                 </div>
             </div>
         </section>

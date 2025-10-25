@@ -1,72 +1,63 @@
 import '../styles/components/projects.css';
 import useFadeInOnScroll from '../hooks/useFadeInOnScroll';
+import { useState, useEffect } from 'react';
+import { fetchProjects } from '../services/api';
 
-function Projects() {
-    const [projectsRef1, projectsVisible1] = useFadeInOnScroll();
-    const [projectsRef2, projectsVisible2] = useFadeInOnScroll();
-    const [projectsRef3, projectsVisible3] = useFadeInOnScroll();
+function ProjectsCard({ project }) {
+
+    const [projectsRef, projectsVisible] = useFadeInOnScroll();
 
     return (
-        <section id="projects" class="section">
-            <div class="container">
-                <h2 class="section-title">Featured Projects</h2>
-                <div class="projects-grid">
-                    <div ref={projectsRef1} className={`project-card ${projectsVisible1 ? 'visible' : ''}`}>
-                        <div class="project-image">🛒</div>
-                        <div class="project-content">
-                            <h3>E-Commerce Platform</h3>
-                            <p>A full-stack e-commerce solution with user authentication, payment processing, inventory management, and admin dashboard. Handles 10k+ concurrent users.</p>
-                            <div class="project-tech">
-                                <span class="tech-tag">React</span>
-                                <span class="tech-tag">Node.js</span>
-                                <span class="tech-tag">PostgreSQL</span>
-                                <span class="tech-tag">Stripe API</span>
-                                <span class="tech-tag">AWS</span>
-                            </div>
-                            <div class="project-links">
-                                <a href="#" class="project-link">Live Demo</a>
-                                <a href="#" class="project-link">GitHub</a>
-                            </div>
-                        </div>
-                    </div>
+        <div ref={projectsRef} className={`project-card ${projectsVisible ? 'visible' : ''}`}>
+            <div className="project-image">🛒</div>
+            <div className="project-content">
+                <h3>{project.title}</h3>
+                <p>{project.description}</p>
+                <div className="project-tech">
+                    {project.techStack.map((tech, index) => (
+                        <span key={index} className="tech-tag">{tech}</span>
+                    ))}
+                </div>
+                <div className="project-links">
+                    <a href={project.liveLink} className="project-link">Live Demo</a>
+                    <a href={project.githubLink} className="project-link">GitHub</a>
+                </div>
+            </div>
+        </div>
+    );
+}
 
-                    <div ref={projectsRef2} className={`project-card ${projectsVisible2 ? 'visible' : ''}`}>
-                        <div class="project-image">📊</div>
-                        <div class="project-content">
-                            <h3>Analytics Dashboard</h3>
-                            <p>Real-time analytics dashboard for business intelligence with interactive charts, data visualization, and customizable reports. Processes millions of data points.</p>
-                            <div class="project-tech">
-                                <span class="tech-tag">Vue.js</span>
-                                <span class="tech-tag">Python</span>
-                                <span class="tech-tag">D3.js</span>
-                                <span class="tech-tag">MongoDB</span>
-                                <span class="tech-tag">Docker</span>
-                            </div>
-                            <div class="project-links">
-                                <a href="#" class="project-link">Live Demo</a>
-                                <a href="#" class="project-link">GitHub</a>
-                            </div>
-                        </div>
-                    </div>
+function Projects() {
+    const [projects, setProjects] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-                    <div ref={projectsRef3} className={`project-card ${projectsVisible3 ? 'visible' : ''}`}>
-                        <div class="project-image">🚀</div>
-                        <div class="project-content">
-                            <h3>Task Management App</h3>
-                            <p>A collaborative project management tool with real-time updates, team collaboration features, file sharing, and progress tracking. Used by 5+ development teams.</p>
-                            <div class="project-tech">
-                                <span class="tech-tag">React Native</span>
-                                <span class="tech-tag">Express.js</span>
-                                <span class="tech-tag">Socket.io</span>
-                                <span class="tech-tag">MySQL</span>
-                                <span class="tech-tag">JWT</span>
-                            </div>
-                            <div class="project-links">
-                                <a href="#" class="project-link">Live Demo</a>
-                                <a href="#" class="project-link">GitHub</a>
-                            </div>
-                        </div>
-                    </div>
+    useEffect(() => {
+        const loadProjects = async () => {
+            try {
+                const data = await fetchProjects();
+                setProjects(data);
+
+            } catch (err) {
+                setError(err.message);
+
+            } finally {
+                setLoading(false);
+
+            }
+        };
+
+        loadProjects();
+    }, []);
+
+    return (
+        <section id="projects" className="section">
+            <div className="container">
+                <h2 className="section-title">Featured Projects</h2>
+                <div className="projects-grid">
+                    {projects.map((project, index) => (
+                        <ProjectsCard key={index} project={project} />
+                    ))}
                 </div>
             </div>
         </section>

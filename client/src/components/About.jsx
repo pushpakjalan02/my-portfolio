@@ -1,18 +1,45 @@
 import '../styles/components/about.css';
+import { useState, useEffect } from 'react';
+import { fetchAbout } from '../services/api';
+
+function AboutText({ paragraph }) {
+    return (
+        <p>{paragraph}</p>
+    );
+}
 
 function About() {
+    const [paragraphs, setParagraphs] = useState({ content: [] });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const loadAbout = async () => {
+            try {
+                const data = await fetchAbout();
+                setParagraphs(data);
+            
+            } catch (err) {
+                setError(err.message);
+
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadAbout();
+    }, []);
+
     return (
-        <section id="about" class="section">
-            <div class="container">
-                <h2 class="section-title">About Me</h2>
-                <div class="about-grid">
-                    <div class="about-image">👨‍💻</div>
+        <section id="about" className="section">
+            <div className="container">
+                <h2 className="section-title">About Me</h2>
+                <div className="about-grid">
+                    <div className="about-image">👨‍💻</div>
                     <div>
-                        <p>I'm a passionate software engineer with 5+ years of experience building scalable web applications and distributed systems. I love solving complex problems and creating elegant, efficient solutions that make a real impact.</p>
-                        <br />
-                        <p>When I'm not coding, you'll find me contributing to open-source projects, learning new technologies, or mentoring junior developers. I believe in writing clean, maintainable code and following best practices to deliver high-quality software.</p>
-                        <br />
-                        <p>I'm currently seeking new opportunities where I can contribute to innovative projects and continue growing as a developer.</p>
+                        {paragraphs.content.map((paragraph, index) => (
+                            [<AboutText key={2 * index} paragraph={paragraph} />, <br key={2 * index + 1} />]
+                        ))}
                     </div>
                 </div>
             </div>
