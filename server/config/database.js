@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const host = process.env.MONGODB_HOST;
 const db = process.env.DATABASE_NAME;
-const uri = util.format('mongodb://%s/%s', host, db);
+const uri = util.format('%s/%s', host, db);
 
 const connect = async () => {
     try {
